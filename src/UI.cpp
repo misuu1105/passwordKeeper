@@ -244,8 +244,51 @@ void UI::showMainMenu(SDL_Surface*& windowSurface, std::vector<Button>& buttons,
     initializeButtons(windowSurface, buttons, font);
 }
 
-void UI::showAddPasswordMenu()
+void UI::showAddPasswordMenu(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font)
 {
+    SDL_StartTextInput();
+
+    setBackgroundImage(windowSurface);
+    renderButton(windowSurface, BACK_BUTTON);
+
+    Button appNameTextBox = {FIRST_BUTTON_SURFACE, "APP NAME:"};
+    renderTextBox(windowSurface, appNameTextBox);
+
+    Button passwordTextBox = {FIRST_BUTTON_SURFACE, "PASSWORD:"};
+    passwordTextBox.surface.y += BUTTONS_VERTICAL_SPACING;
+    renderTextBox(windowSurface, passwordTextBox);
+
+    Button clearButton = {BACK_BUTTON_SURFACE, "CLEAR"};
+    clearButton.surface.x = passwordTextBox.surface.x;
+    clearButton.surface.y = passwordTextBox.surface.y + BUTTONS_VERTICAL_SPACING;
+    renderButton(windowSurface, clearButton);
+
+    Button sendButton = {clearButton.surface, "SEND"};
+    sendButton.surface.x = clearButton.surface.x + clearButton.surface.w + 10;
+    renderButton(windowSurface, sendButton);
+
+    std::string appNameInput;
+    std::string passwordInput;
+
+    SDL_Event addPasswordEvent;
+    bool inAddPasswordMenu = true;
+
+    while (inAddPasswordMenu)
+    {
+        handleAddPasswordMenuEvents
+        (
+            addPasswordEvent,
+            inAddPasswordMenu,
+            appNameInput,
+            passwordInput,
+            appNameTextBox,
+            passwordTextBox,
+            clearButton,
+            sendButton
+        );
+    }
+
+    showMainMenu(windowSurface, buttons, font);
 }
 
 void UI::showViewPasswordMenu()
