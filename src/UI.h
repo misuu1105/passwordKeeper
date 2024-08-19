@@ -71,6 +71,7 @@ class UI
 
         void showMainMenu(std::vector<Button>& buttons);
         void showAddPasswordMenu(std::vector<Button>& buttons);
+        void handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton);
         void handleAddPasswordMenuButtons(const int x, const int y, std::string& appNameInput, std::string& passwordInput, bool& inMenu, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton);
 
 

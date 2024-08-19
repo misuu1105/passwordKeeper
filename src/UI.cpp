@@ -134,21 +134,23 @@ void UI::handleButton(int currentButton, std::vector<Button>& buttons)
 
 void UI::setBackgroundImage()
 {
-    if (!windowSurface)
+    if (windowSurface == nullptr)
     {
         std::cerr << "Invalid window surface.\n";
         quitApplication();
     }
 
     SDL_Surface* backgroundImage = SDL_LoadBMP(BACKGROUND_IMAGE_PATH);
-    if (!backgroundImage)
+    
+    if (backgroundImage == nullptr)
     {
         std::cerr << "Failed to load background image: " << SDL_GetError() << '\n';
         quitApplication();
     }
 
     SDL_Surface* optimizedBackgroundImage = SDL_ConvertSurfaceFormat(backgroundImage, windowSurface->format->format, 0);
-    if (!optimizedBackgroundImage)
+    
+    if (optimizedBackgroundImage == nullptr)
     {
         std::cerr << "Failed to convert background image format: " << SDL_GetError() << '\n';
         SDL_FreeSurface(backgroundImage);
@@ -280,20 +282,50 @@ void UI::showAddPasswordMenu(std::vector<Button>& buttons)
 
     while (inAddPasswordMenu)
     {
-        // handleAddPasswordMenuEvents
-        // (
-        //     addPasswordEvent,
-        //     inAddPasswordMenu,
-        //     appNameInput,
-        //     passwordInput,
-        //     appNameTextBox,
-        //     passwordTextBox,
-        //     clearButton,
-        //     sendButton
-        // );
+        handleAddPasswordMenuEvents
+        (
+            addPasswordEvent,
+            inAddPasswordMenu,
+            appNameInput,
+            passwordInput,
+            appNameTextBox,
+            passwordTextBox,
+            clearButton,
+            sendButton
+        );
     }
 
     showMainMenu(buttons);
+}
+
+void UI::handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton)
+{
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                quitApplication();
+                break;
+
+            // case SDL_MOUSEBUTTONDOWN:
+            //     int x, y;
+            //     SDL_GetMouseState(&x, &y);
+
+                // handleAddPasswordMenuButtons(x, y, appNameInput, passwordInput, inMenu, appNameTextBox, passwordTextBox, clearButton, sendButton);
+
+            //     break;
+
+            case SDL_KEYDOWN:
+
+                if (event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    inMenu = false;
+                }
+
+                break;
+        }
+    }
 }
 
 void UI::handleAddPasswordMenuButtons(const int x, const int y, std::string& appNameInput, std::string& passwordInput, bool& inMenu, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton)
@@ -327,7 +359,7 @@ void UI::renderButton(Button& button)
     fillButtonSurface(button);
 
     SDL_Surface* textSurface = TTF_RenderText_Solid(FONT, button.name.c_str(), TEXT_COLOR);
-    if (!textSurface) 
+    if (textSurface == nullptr) 
     {
         std::cerr << "Failed to render text surface in renderButton method.\n";
         quitApplication();
