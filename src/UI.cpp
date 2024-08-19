@@ -8,9 +8,13 @@ const int WIDTH = 1000;
 const int HEIGHT = 550;
 const int BUTTONS_COUNTER = 4;
 const int BUTTONS_VERTICAL_SPACING = 80;
-const SDL_Color BUTTON_COLOR = {180, 180, 180, 255}; // Added alpha for SDL_Color
-const SDL_Color TEXT_COLOR = {0, 0, 80, 255}; // Added alpha for SDL_Color
+const SDL_Color BUTTON_COLOR = {255, 255, 255, 255}; 
+const SDL_Color TEXT_COLOR = {0, 0, 80, 255}; 
+const SDL_Color TEXT_LIGHT_COLOR = {255, 255, 255, 255}; 
 const SDL_Rect FIRST_BUTTON_SURFACE = {340, 125, 300, 50};
+const SDL_Rect BACK_BUTTON_SURFACE = {20, 20, 100, 50};
+TTF_Font* FONT;
+Button BACK_BUTTON = {BACK_BUTTON_SURFACE, "BACK"};
 
 UI::UI(SDL_Window*& window, SDL_Renderer*& renderer) : sdlWindow{window}, sdlRenderer{renderer} {}
 
@@ -21,14 +25,14 @@ UI::~UI()
 
 void UI::runApplication()
 {
-    SDL_Surface* windowSurface = SDL_GetWindowSurface(sdlWindow);
+    windowSurface = SDL_GetWindowSurface(sdlWindow);
 
     if (windowSurface == nullptr)
         std::cerr << SDL_GetError() << '\n';
 
-    TTF_Font* font = TTF_OpenFont(FONT_PATH, TEXT_SIZE);
+    FONT = TTF_OpenFont(FONT_PATH, TEXT_SIZE);
 
-    if (font == nullptr)
+    if (FONT == nullptr)
     {
         std::cerr << "The font could not be opened: " << TTF_GetError() << '\n';
         quitApplication();
@@ -38,26 +42,27 @@ void UI::runApplication()
     bool appIsRunning = true;
     std::vector<Button> buttons{BUTTONS_COUNTER};
 
-    showMainMenu(windowSurface, buttons, font);
+    showMainMenu(buttons);
 
     while (appIsRunning)
     {
         handleEvents(event, appIsRunning, buttons);
     }
 
-    TTF_CloseFont(font);
+    TTF_CloseFont(FONT);
 }
 
 void UI::quitApplication()
 {
     SDL_DestroyWindow(sdlWindow);
     SDL_DestroyRenderer(sdlRenderer);
+    TTF_CloseFont(FONT);
     TTF_Quit();
     SDL_Quit();
     std::exit(0);
 }
 
-void UI::handleEvents(SDL_Event& event, bool& appIsRunning, const std::vector<Button>& buttons)
+void UI::handleEvents(SDL_Event& event, bool& appIsRunning, std::vector<Button>& buttons)
 {
     while (SDL_PollEvent(&event))
     {
@@ -72,7 +77,7 @@ void UI::handleEvents(SDL_Event& event, bool& appIsRunning, const std::vector<Bu
                 SDL_GetMouseState(&x, &y);
                 
                 int button = whichButton(buttons, x, y);
-                handleButton(button); 
+                handleButton(button, buttons); 
                 break;
         }
     }
@@ -94,7 +99,7 @@ int UI::whichButton(const std::vector<Button>& buttons, const int x, const int y
     return NO_BUTTON_PRESSED;
 }
 
-void UI::handleButton(int currentButton)
+void UI::handleButton(int currentButton, std::vector<Button>& buttons)
 {
     switch (currentButton)
     {
@@ -102,7 +107,7 @@ void UI::handleButton(int currentButton)
             break;
 
         case ADD_PASSWORD:
-            showAddPasswordMenu();
+            showAddPasswordMenu(buttons);
             std::cout << currentButton + 1 << '\n';
             break;
 
@@ -127,7 +132,7 @@ void UI::handleButton(int currentButton)
     }
 }
 
-void UI::setBackgroundImage(SDL_Surface*& windowSurface)
+void UI::setBackgroundImage()
 {
     if (!windowSurface)
     {
@@ -189,17 +194,17 @@ void UI::setButtonName(std::vector<Button>& buttons, int currentButton)
     }
 }
 
-void UI::fillButton(SDL_Rect& button, SDL_Surface* windowSurface)
+void UI::fillButtonSurface(Button& button)
 {
     Uint32 color = SDL_MapRGB(windowSurface->format, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b);
-    if (SDL_FillRect(windowSurface, &button, color) < 0)
+    if (SDL_FillRect(windowSurface, &button.surface, color) < 0)
     {
-        std::cerr << "An error encountered in the fillButton function: " << SDL_GetError() << '\n';
+        std::cerr << "An error encountered in the fillButtonSurface function: " << SDL_GetError() << '\n';
         quitApplication();
     }
 }
 
-void UI::initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font)
+void UI::initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& buttons)
 {
     for (int currentButton = ADD_PASSWORD; currentButton < BUTTONS_COUNTER; currentButton++)    
     {
@@ -216,10 +221,10 @@ void UI::initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& but
                 break;
         }
 
-        fillButton(buttons[currentButton].surface, windowSurface);
+        fillButtonSurface(buttons[currentButton]);
         setButtonName(buttons, currentButton);
 
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, buttons[currentButton].name.c_str(), TEXT_COLOR);
+        SDL_Surface* textSurface = TTF_RenderText_Solid(FONT, buttons[currentButton].name.c_str(), TEXT_COLOR);
                         
         if (textSurface == nullptr)
         {
@@ -238,34 +243,34 @@ void UI::initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& but
     SDL_UpdateWindowSurface(sdlWindow);
 }
 
-void UI::showMainMenu(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font)
+void UI::showMainMenu(std::vector<Button>& buttons)
 {
-    setBackgroundImage(windowSurface);
-    initializeButtons(windowSurface, buttons, font);
+    setBackgroundImage();
+    initializeButtons(windowSurface, buttons);
 }
 
-void UI::showAddPasswordMenu(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font)
+void UI::showAddPasswordMenu(std::vector<Button>& buttons)
 {
     SDL_StartTextInput();
 
-    setBackgroundImage(windowSurface);
-    renderButton(windowSurface, BACK_BUTTON);
+    setBackgroundImage();
+    renderButton(BACK_BUTTON);
 
     Button appNameTextBox = {FIRST_BUTTON_SURFACE, "APP NAME:"};
-    renderTextBox(windowSurface, appNameTextBox);
+    renderTextBox(appNameTextBox);
 
     Button passwordTextBox = {FIRST_BUTTON_SURFACE, "PASSWORD:"};
     passwordTextBox.surface.y += BUTTONS_VERTICAL_SPACING;
-    renderTextBox(windowSurface, passwordTextBox);
+    renderTextBox(passwordTextBox);
 
     Button clearButton = {BACK_BUTTON_SURFACE, "CLEAR"};
     clearButton.surface.x = passwordTextBox.surface.x;
     clearButton.surface.y = passwordTextBox.surface.y + BUTTONS_VERTICAL_SPACING;
-    renderButton(windowSurface, clearButton);
+    renderButton(clearButton);
 
     Button sendButton = {clearButton.surface, "SEND"};
     sendButton.surface.x = clearButton.surface.x + clearButton.surface.w + 10;
-    renderButton(windowSurface, sendButton);
+    renderButton(sendButton);
 
     std::string appNameInput;
     std::string passwordInput;
@@ -275,20 +280,87 @@ void UI::showAddPasswordMenu(SDL_Surface*& windowSurface, std::vector<Button>& b
 
     while (inAddPasswordMenu)
     {
-        handleAddPasswordMenuEvents
-        (
-            addPasswordEvent,
-            inAddPasswordMenu,
-            appNameInput,
-            passwordInput,
-            appNameTextBox,
-            passwordTextBox,
-            clearButton,
-            sendButton
-        );
+        // handleAddPasswordMenuEvents
+        // (
+        //     addPasswordEvent,
+        //     inAddPasswordMenu,
+        //     appNameInput,
+        //     passwordInput,
+        //     appNameTextBox,
+        //     passwordTextBox,
+        //     clearButton,
+        //     sendButton
+        // );
     }
 
-    showMainMenu(windowSurface, buttons, font);
+    showMainMenu(buttons);
+}
+
+void UI::handleAddPasswordMenuButtons(const int x, const int y, std::string& appNameInput, std::string& passwordInput, bool& inMenu, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton)
+{
+    if (inButtonSurface(x, y, BACK_BUTTON))
+    {
+       inMenu = false;
+    }
+    else if (inButtonSurface(x, y, appNameTextBox))
+    {
+        inMenu = true;
+    }
+    else if (inButtonSurface(x, y, clearButton))
+    {
+        appNameInput.clear();
+        passwordInput.clear();
+    }
+    else if (inButtonSurface(x, y, sendButton))
+    {
+        // sendAppNameAndPassword(appNameInput, passwordInput);
+    }
+}
+
+bool UI::inButtonSurface(const int x, const int y, const Button& button)
+{
+    return x >= button.surface.x && x <= button.surface.x + button.surface.w && y >= button.surface.y && y <= button.surface.y + button.surface.h;
+}
+
+void UI::renderButton(Button& button)
+{
+    fillButtonSurface(button);
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(FONT, button.name.c_str(), TEXT_COLOR);
+    if (!textSurface) 
+    {
+        std::cerr << "Failed to render text surface in renderButton method.\n";
+        quitApplication();
+    }
+
+    SDL_Rect textPosition;
+    textPosition.x = button.surface.x + (button.surface.w - textSurface->w) / 2;
+    textPosition.y = button.surface.y + (button.surface.h - textSurface->h) / 2;
+
+    SDL_BlitSurface(textSurface, nullptr, windowSurface, &textPosition);
+    SDL_FreeSurface(textSurface);
+}
+
+void UI::renderTextBox(Button& button)
+{
+    fillButtonSurface(button);
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(FONT, button.name.c_str(), TEXT_LIGHT_COLOR);
+
+    if (textSurface == nullptr)
+    {
+        std::cerr << "Unable to render text surface in renderTextBox method\n";
+    }
+
+    SDL_Rect textPosition;
+    textPosition.x = button.surface.x - textSurface->w - 10; // left aligning the text
+    textPosition.y = button.surface.y + (button.surface.h - textSurface->h) / 2;
+    textPosition.w = button.surface.w;
+    textPosition.h = button.surface.h;
+
+    SDL_BlitSurface(textSurface, nullptr, windowSurface, &textPosition);
+    SDL_FreeSurface(textSurface);
+    SDL_UpdateWindowSurface(sdlWindow);
 }
 
 void UI::showViewPasswordMenu()

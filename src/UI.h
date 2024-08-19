@@ -58,18 +58,26 @@ class UI
     private:
         SDL_Renderer* sdlRenderer;
         SDL_Window* sdlWindow;
+        SDL_Surface* windowSurface;
 
-        void handleEvents(SDL_Event& event, bool& appIsRunning, const std::vector<Button>& buttons);
-        void handleButton(int button);
-        void setBackgroundImage(SDL_Surface*& windowSurface);
+        void handleEvents(SDL_Event& event, bool& appIsRunning, std::vector<Button>& buttons);
+        void handleButton(int currentButton, std::vector<Button>& buttons);
+        void setBackgroundImage();
         void setButtonName(std::vector<Button>& buttons, int currentButton);
-        void initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font);
-        void fillButton(SDL_Rect& button, SDL_Surface* windowSurface);
+        void initializeButtons(SDL_Surface*& windowSurface, std::vector<Button>& buttons);
+        void fillButtonSurface(Button& button);
         bool inButtonSurface(const int x, const int y, const SDL_Rect& rectangle);
         int whichButton(const std::vector<Button>& buttons, const int x, const int y);
 
-        void showMainMenu(SDL_Surface*& windowSurface, std::vector<Button>& buttons, TTF_Font*& font);
-        void showAddPasswordMenu();
+        void showMainMenu(std::vector<Button>& buttons);
+        void showAddPasswordMenu(std::vector<Button>& buttons);
+        void handleAddPasswordMenuButtons(const int x, const int y, std::string& appNameInput, std::string& passwordInput, bool& inMenu, const Button& appNameTextBox, const Button& passwordTextBox, const Button& clearButton, const Button& sendButton);
+
+
+        void renderButton(Button& button);
+        bool inButtonSurface(const int x, const int y, const Button& button);
+        void renderTextBox(Button& button);
+
         void showViewPasswordMenu();
         void showDeletePasswordMenu();
         void showViewAllPasswordsMenu();
