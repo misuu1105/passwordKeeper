@@ -7,13 +7,13 @@
 
 #include "FileHandler.h"
 
-const std::string FILE_NAME = "./passwords.xml";
+const std::string FILE_NAME = "./lib/passwords.xml";
 
 class PasswordManager
 {
     public:
         void addPassword(std::string& appName, const std::string& password);
-        void deletePassword( std::string& appName);
+        void deletePassword(std::string& appName);
 
         const std::string& getPassword(std::string& appName);
 
@@ -22,7 +22,7 @@ class PasswordManager
         std::unordered_map<std::string, std::string> passwords;
         FileHandler handler{FILE_NAME}; 
 
-        void correctedAppName(std::string& appName);
+        void appNameNormalization(std::string& appName);
 };
 
 #endif

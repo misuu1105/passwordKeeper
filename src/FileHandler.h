@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <filesystem>
+
 // external headers
 #include <tinyxml2.h>
 
@@ -17,23 +18,22 @@ class FileHandler
         void saveToFile(const std::string& appName, const std::string& password);
         void deleteFromFile(const std::string& appName);
 
-        template<typename PointerType>
-        PointerType loadFromFile(const std::string& appName) const;
+        template<typename SmartPointerType>
+        SmartPointerType loadFromFile(const std::string& appName) const;
 
     private:
         tinyxml2::XMLDocument file;
         std::string fileName;
 };
 
-template<typename PointerType>
-PointerType FileHandler::loadFromFile(const std::string& appName) const
+template<typename SmartPointerType>
+SmartPointerType FileHandler::loadFromFile(const std::string& appName) const
 {
     // making sure that the template provided is the right one
     static_assert
     ( 
-        std::is_same_v<PointerType, std::unique_ptr<std::string>> ||
-        std::is_same_v<PointerType, std::shared_ptr<std::string>>,
-        "PointerType must be either std::unique_ptr<std::string> or std::shared_ptr<std::string>"
+        std::is_same_v<SmartPointerType, std::unique_ptr<std::string>> || std::is_same_v<SmartPointerType, std::shared_ptr<std::string>>,
+        "SmartPointerType must be either std::unique_ptr<std::string> or std::shared_ptr<std::string>"
     );
 
     const char* APPNAME = appName.c_str();
@@ -47,17 +47,17 @@ PointerType FileHandler::loadFromFile(const std::string& appName) const
     {
         const char* password = searchedElement->Attribute(ATRIBUTE);
 
-        if constexpr (std::is_same_v<PointerType, std::unique_ptr<std::string>>)
+        if constexpr (std::is_same_v<SmartPointerType, std::unique_ptr<std::string>>)
         {
             return std::make_unique<std::string>(password);
         }
-        else if constexpr (std::is_same_v<PointerType, std::shared_ptr<std::string>>)
+        else if constexpr (std::is_same_v<SmartPointerType, std::shared_ptr<std::string>>)
         {
             return std::make_shared<std::string>(password);
         }
     }
 
-    throw std::invalid_argument("There is no saved password for " + appName);
+    return nullptr;
 }
 
 #endif // FILE_HANDLER_H 
