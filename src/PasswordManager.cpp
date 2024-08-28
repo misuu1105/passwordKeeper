@@ -17,7 +17,11 @@ void PasswordManager::deletePassword(std::string& appName)
 {
     appNameNormalization(appName);
     passwords[appName] = this->getPassword(appName); // save the password until the app is closed in case the user deleted it by mistake
-    handler.deleteFromFile(appName);
+
+    if (handler.deleteFromFile(appName) < 0)
+    {
+        throw std::invalid_argument("There is no password saved for " + appName);
+    }
 }
 
 const std::string& PasswordManager::getPassword(std::string& appName)
@@ -47,16 +51,21 @@ const std::string& PasswordManager::getPassword(std::string& appName)
 
 void PasswordManager::appNameNormalization(std::string& appName)
 {
+    if (appName.size() > 30 || appName.empty())
+    {
+        throw std::out_of_range("App name is invalid");
+    }
+
     for (char& currentChar: appName)
     {
+        if (isalpha(currentChar) == false)
+        {
+            throw std::invalid_argument("App name should only contain letters");
+        }
+
         if (islower(currentChar))
         {
             currentChar = toupper(currentChar);
         }
-    }
-
-    if (appName.size() > 30 || appName.empty())
-    {
-        throw std::out_of_range("App name is invalid");
     }
 }

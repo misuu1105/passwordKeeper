@@ -53,7 +53,7 @@ class UI
         void quitApplication();
 
     private:
-        SDL_Window* appWindow;
+        SDL_Window* window;
         SDL_Surface* windowSurface;
         PasswordManager passwordManager;
 
@@ -67,17 +67,24 @@ class UI
         // ADD PASSWORD MENU METHODS
         void renderMainMenu(std::vector<Button>& buttons);
         void renderAddPasswordMenu(std::vector<Button>& buttons);
-        void handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu,std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton);
+        void handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton);
         void handleAddPasswordMenuButtons(const int x, const int y, std::string& appNameInput, std::string& passwordInput, bool& inMenu, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton);
 
-        void renderViewPasswordMenu();
-        void renderDeletePasswordMenu();
+        // SEARCH PASSWORD MENU METHODS
+        void renderSearchPasswordMenu(std::vector<Button>& buttons);
+        void handleSearchPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const TextBox& getPasswordTextBox, const Button& searchButton);
+        void handleSearchPasswordMenuButtons(const int x, const int y, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const TextBox& getPasswordTextBox, const Button& searchButton);
+
+        // DELETE PASSWORD MENU METHODS
+        void renderDeletePasswordMenu(std::vector<Button>& buttons);
+        void handleDeletePasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const Button& deleteButton);
+        void handleDeletePasswordMenuButtons(const int x, const int y, bool& inMenu, std::string &appNameInput, const TextBox &appNameTextBox, const Button &deleteButton);
 
         // UNIVERSAL METHODS
         void renderText(const TextBox& textBox, std::string& text);
-        void renderUserMessage(const std::string& text, TextBox& textBox);
+        void renderMessageForUser(const std::string& text, const TextBox& textBox);
         void handleInput(std::string& inputString, const TextBox& textBox);
-        void handleKeyDown(const SDL_Keycode& key, const SDL_Keymod& modifierKey, std::string& inputString, const TextBox& textBox, bool& inTextBox);
+        void handleInputKeyDown(const SDL_Keycode& key, const SDL_Keymod& modifierKey, std::string& inputString, const TextBox& textBox, bool& inTextBox);
         void renderButton(const 
         Button& button);
         void renderTextBox(const Button& button);
@@ -85,6 +92,7 @@ class UI
         void fillButtonSurface(const Button& button);
         bool inButtonSurface(const int x, const int y, const Button& button);
         void setBackgroundImage();
+        void renderInfoText();
 };
 
 #endif

@@ -17,7 +17,7 @@ FileHandler::FileHandler(const std::string& fileName)
                 break;
 
             default:
-                throw std::runtime_error("Unknown error encountered while trying to acces the file\n");
+                std::cerr << "Unknown error encountered while trying to acces the file\n";
                 break;
         }
 
@@ -34,7 +34,9 @@ void FileHandler::saveToFile(const std::string& appName, const std::string& pass
     tinyxml2::XMLElement* root = file.RootElement();
 
     if (root == nullptr)
-        throw std::runtime_error("No root element found in " + appName);
+    {
+        std::cerr << "No root element found in " << appName;
+    }
 
     tinyxml2::XMLElement* newPassword = file.NewElement(APP_NAME);
     newPassword->SetAttribute(PASSWORD, NEW_PASSWORD);
@@ -42,10 +44,12 @@ void FileHandler::saveToFile(const std::string& appName, const std::string& pass
     root->InsertEndChild(newPassword);
 
     if (file.SaveFile(FILE_NAME) != tinyxml2::XML_SUCCESS)
-        throw std::invalid_argument("Failed to save file" + appName);
+    {
+        std::cerr << "Failed to save file";
+    }
 }
 
-void FileHandler::deleteFromFile(const std::string& appName)
+int FileHandler::deleteFromFile(const std::string& appName)
 {
     const char* APP_NAME = appName.c_str();
     const char* FILE_NAME = fileName.c_str();
@@ -60,8 +64,16 @@ void FileHandler::deleteFromFile(const std::string& appName)
         auto fileStatus = file.SaveFile(FILE_NAME);
 
         if (fileStatus != tinyxml2::XML_SUCCESS)
-            throw std::runtime_error("Can't save the file" + appName + " after the deletion of the password");
+        {
+            std::cerr << "Can't save the file" << appName << " after the deletion of the password";
+        }
     }
+    else
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 void createNewFile(tinyxml2::XMLDocument& file, const char* fileName)
@@ -73,5 +85,7 @@ void createNewFile(tinyxml2::XMLDocument& file, const char* fileName)
     auto fileStaus = file.SaveFile(fileName);
 
     if (fileStaus != tinyxml2::XML_SUCCESS)
-        throw std::runtime_error("Unknown error encountered while trying to create the file\n");
+    {
+        std::cerr << "Unknown error encountered while trying to create the file\n";
+    }
 }

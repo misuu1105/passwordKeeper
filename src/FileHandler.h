@@ -16,7 +16,7 @@ class FileHandler
         FileHandler(const std::string& fileName);
 
         void saveToFile(const std::string& appName, const std::string& password);
-        void deleteFromFile(const std::string& appName);
+        int deleteFromFile(const std::string& appName);
 
         template<typename SmartPointerType>
         SmartPointerType loadFromFile(const std::string& appName) const;
