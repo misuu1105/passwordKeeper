@@ -44,17 +44,6 @@ int main(int argc, char* argv[])
         std::exit(-1);
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-
-    if (renderer == nullptr)
-    {
-        std::cerr << "Failed to create renderer: " << SDL_GetError() << '\n';
-        SDL_DestroyWindow(window);
-        TTF_Quit();
-        SDL_Quit();
-        std::exit(-1);
-    }
-
-    UI userInterfaceHandler{window, renderer};
+    UI userInterfaceHandler{window};
     userInterfaceHandler.runApplication();
 }
