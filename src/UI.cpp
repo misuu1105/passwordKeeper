@@ -20,7 +20,7 @@ TTF_Font* FONT;
 SDL_Rect MESSAGE_BOX_SURFACE = {0, HEIGHT - 50, WIDTH, 50};
 TextBox MESSAGE_BOX = {MESSAGE_BOX_SURFACE, "MESSAGE BOX"};
 
-UI::UI(SDL_Window* window, SDL_Renderer* renderer) : window{window}
+UI::UI(SDL_Window* window) : window{window}
 {
     windowSurface = SDL_GetWindowSurface(window);
 
