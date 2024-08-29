@@ -76,7 +76,7 @@ int FileHandler::deleteFromFile(const std::string& appName)
     return 0;
 }
 
-void createNewFile(tinyxml2::XMLDocument& file, const char* fileName)
+void FileHandler::createNewFile(tinyxml2::XMLDocument& file, const char* fileName)
 {
     file.Clear();   
     tinyxml2::XMLElement* root = file.NewElement("passwords");
