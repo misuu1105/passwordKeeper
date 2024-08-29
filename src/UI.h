@@ -46,7 +46,7 @@ typedef Button TextBox;
 class UI
 {
     public:
-        UI(SDL_Window* window, SDL_Renderer* renderer);
+        UI(SDL_Window* window);
         ~UI();
 
         void runApplication();
