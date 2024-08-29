@@ -85,8 +85,7 @@ class UI
         void renderMessageForUser(const std::string& text, const TextBox& textBox);
         void handleInput(std::string& inputString, const TextBox& textBox);
         void handleInputKeyDown(const SDL_Keycode& key, const SDL_Keymod& modifierKey, std::string& inputString, const TextBox& textBox, bool& inTextBox);
-        void renderButton(const 
-        Button& button);
+        void renderButton(const Button& button);
         void renderTextBox(const Button& button);
         void toggleHighlight(const TextBox& textBox, const Highlight& highlightState);
         void fillButtonSurface(const Button& button);
