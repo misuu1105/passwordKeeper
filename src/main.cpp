@@ -11,15 +11,13 @@ const char* APP_NAME = "Password-Keeper";
 
 int main(int argc, char* argv[])
 {
-    // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         std::cerr << "SDL could not be initialized: " << SDL_GetError() << '\n';
         std::exit(-1);
     }
 
-    // Initialize SDL_ttf
-    if (TTF_Init() == -1)
+    if (TTF_Init() < 0)
     {
         std::cerr << "SDL_ttf could not be initialized: " << TTF_GetError() << '\n';
         SDL_Quit();
