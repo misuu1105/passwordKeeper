@@ -4,7 +4,7 @@ PasswordKeeper is a simple password manager application built using C++, SDL2, a
 
 This is my first C++ project, created primarily for learning purposes. The project focuses on practicing OOP principles, which is why all the application logic is implemented using only classes and objects. I chose SDL2 for creating the GUI, mainly to move away from building console applications and try something new.
 
-Why the Simple GUI?
+Why the simple GUI?
 
 The GUI isn’t particularly sophisticated because the primary goal was to implement it in the simplest way possible. By focusing on simplicity, I could concentrate on understanding and applying fundamental concepts of GUI development and OOP in C++. This approach allowed me to:
 
