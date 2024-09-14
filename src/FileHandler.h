@@ -15,11 +15,11 @@ class FileHandler
     public:
         FileHandler(const std::string& fileName);
 
-        void saveToFile(const std::string& appName, const std::string& password);
-        int deleteFromFile(const std::string& appName);
+        void saveToFile(const std::string& appName, const std::string& password) noexcept;
+        int deleteFromFile(const std::string& appName) noexcept;
 
         template<typename SmartPointerType>
-        SmartPointerType loadFromFile(const std::string& appName) const;
+        SmartPointerType loadFromFile(const std::string& appName) const noexcept;
 
     private:
         tinyxml2::XMLDocument file;
@@ -29,7 +29,7 @@ class FileHandler
 };
 
 template<typename SmartPointerType>
-SmartPointerType FileHandler::loadFromFile(const std::string& appName) const
+SmartPointerType FileHandler::loadFromFile(const std::string& appName) const noexcept
 {
     // making sure that the template provided is the right one
     static_assert
@@ -38,16 +38,16 @@ SmartPointerType FileHandler::loadFromFile(const std::string& appName) const
         "SmartPointerType must be either std::unique_ptr<std::string> or std::shared_ptr<std::string>"
     );
 
-    const char* APPNAME = appName.c_str();
-    const char* ATRIBUTE = "password";
+    const char* APP_NAME = appName.c_str();
+    const char* ATTRIBUTE = "password";
 
     const tinyxml2::XMLElement* root = file.RootElement();
-    const tinyxml2::XMLElement* searchedElement = root ? root->FirstChildElement(APPNAME) : nullptr;
+    const tinyxml2::XMLElement* searchedElement = root ? root->FirstChildElement(APP_NAME) : nullptr;
 
     // returning the right form of the template
     if (searchedElement)
     {
-        const char* password = searchedElement->Attribute(ATRIBUTE);
+        const char* password = searchedElement->Attribute(ATTRIBUTE);
 
         if constexpr (std::is_same_v<SmartPointerType, std::unique_ptr<std::string>>)
         {

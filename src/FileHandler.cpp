@@ -1,7 +1,5 @@
 #include "FileHandler.h"
 
-const char* PASSWORD = "password";
-
 FileHandler::FileHandler(const std::string& fileName)
 {
     const char* FILE_NAME = fileName.c_str();
@@ -22,13 +20,8 @@ FileHandler::FileHandler(const std::string& fileName)
     this->fileName = fileName;
 }
 
-void FileHandler::saveToFile(const std::string& appName, const std::string& password)
+void FileHandler::saveToFile(const std::string& appName, const std::string& password) noexcept
 {
-    // cast to cstring for matching XML functions parameters
-    const char* APP_NAME = appName.c_str(); 
-    const char* NEW_PASSWORD = password.c_str();
-    const char* FILE_NAME = fileName.c_str();
-
     tinyxml2::XMLElement* root = file.RootElement();
 
     if (root == nullptr)
@@ -36,30 +29,27 @@ void FileHandler::saveToFile(const std::string& appName, const std::string& pass
         std::cerr << "No root element found in " << appName;
     }
 
-    tinyxml2::XMLElement* newPassword = file.NewElement(APP_NAME);
-    newPassword->SetAttribute(PASSWORD, NEW_PASSWORD);
+    tinyxml2::XMLElement* newPassword = file.NewElement(appName.c_str());
+    newPassword->SetAttribute("password", appName.c_str());
 
     root->InsertEndChild(newPassword);
 
-    if (file.SaveFile(FILE_NAME) != tinyxml2::XML_SUCCESS)
+    if (file.SaveFile(fileName.c_str()) != tinyxml2::XML_SUCCESS)
     {
         std::cerr << "Failed to save file";
     }
 }
 
-int FileHandler::deleteFromFile(const std::string& appName)
+int FileHandler::deleteFromFile(const std::string& appName) noexcept
 {
-    const char* APP_NAME = appName.c_str();
-    const char* FILE_NAME = fileName.c_str();
-
     tinyxml2::XMLElement* root = file.RootElement();
-    tinyxml2::XMLElement* searchedElement = root->FirstChildElement(APP_NAME);
+    tinyxml2::XMLElement* searchedApp = root->FirstChildElement(appName.c_str());
 
-    if (searchedElement)
+    if (searchedApp)
     {
-        root->DeleteChild(searchedElement);
+        root->DeleteChild(searchedApp);
 
-        auto fileStatus = file.SaveFile(FILE_NAME);
+        auto fileStatus = file.SaveFile(fileName.c_str());
 
         if (fileStatus != tinyxml2::XML_SUCCESS)
         {

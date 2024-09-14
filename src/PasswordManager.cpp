@@ -24,7 +24,7 @@ void PasswordManager::deletePassword(std::string& appName)
     }
 }
 
-const std::string& PasswordManager::getPassword(std::string& appName)
+const std::string& PasswordManager::getPassword(std::string& appName) 
 {
     appNameNormalization(appName);
 
@@ -49,18 +49,18 @@ const std::string& PasswordManager::getPassword(std::string& appName)
     } 
 }
 
-void PasswordManager::appNameNormalization(std::string& appName)
+void PasswordManager::appNameNormalization(std::string& appName) 
 {
     if (appName.size() > 30 || appName.empty())
     {
         throw std::out_of_range("App name is invalid");
     }
 
-    for (char& currentChar: appName)
+    for (char currentChar : appName)
     {
         if (isalpha(currentChar) == false)
         {
-            throw std::invalid_argument("App name should only contain letters");
+            throw std::invalid_argument("The app name should only contain letters");
         }
 
         if (islower(currentChar))
