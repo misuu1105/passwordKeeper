@@ -20,12 +20,15 @@ TTF_Font* FONT;
 SDL_Rect MESSAGE_BOX_SURFACE = {0, HEIGHT - 50, WIDTH, 50};
 TextBox MESSAGE_BOX = {MESSAGE_BOX_SURFACE, "MESSAGE BOX"};
 
-UI::UI(SDL_Window* window, SDL_Renderer* renderer) : window{window}
+UI::UI(SDL_Window* window) : window{window}
 {
     windowSurface = SDL_GetWindowSurface(window);
 
     if (windowSurface == nullptr)
+    {   
         std::cerr << SDL_GetError() << '\n';
+    }
+
     FONT = TTF_OpenFont(FONT_PATH, TEXT_SIZE);
 
     if (FONT == nullptr)
@@ -666,28 +669,9 @@ void UI::handleInputKeyDown(const SDL_Keycode& key, const SDL_Keymod& modifierKe
         toggleHighlight(textBox, Highlight::TURN_OFF);
         inTextBox = false;
     }
-    else if (key == SDLK_BACKSPACE && inputString.empty() == false)
+    else if ((modifierKey & KMOD_LGUI) || (modifierKey & KMOD_RGUI) || (modifierKey & KMOD_CTRL))
     {
-        // checking if LGUI or RGUI is pressed to implement the standard behavior of cmd+q on macOS
-        if ((modifierKey & KMOD_LGUI) || (modifierKey & KMOD_LGUI) || (modifierKey & KMOD_CTRL))
-        {
-            inputString.clear();
-        }
-        else
-        {
-            inputString.pop_back();
-        }
-    }
-    else if (((modifierKey & KMOD_LGUI) || (modifierKey & KMOD_LGUI) || (modifierKey & KMOD_CTRL)) && key == SDLK_c) // copy
-    {
-        if (inputString.empty() == false)
-        {
-            SDL_SetClipboardText(inputString.c_str());
-        }
-    }
-    else if (((modifierKey & KMOD_LGUI) || (modifierKey & KMOD_LGUI) || (modifierKey & KMOD_CTRL)) && key == SDLK_v) // paste
-    {
-        if (SDL_HasClipboardText())
+        if (key == SDLK_v && SDL_HasClipboardText())
         {
             char* clipboardText = SDL_GetClipboardText();
 
@@ -697,6 +681,23 @@ void UI::handleInputKeyDown(const SDL_Keycode& key, const SDL_Keymod& modifierKe
                 SDL_free(clipboardText);  // Free the clipboard text memory
             }
         }
+        else  if (key == SDLK_c)
+        {
+            SDL_SetClipboardText(inputString.c_str());
+        }
+        else if ((key == SDLK_BACKSPACE || key == SDLK_x) && inputString.empty() == false)
+        {
+            if (key == SDLK_x)
+            {
+                SDL_SetClipboardText(inputString.c_str());
+            }
+
+            inputString.clear();
+        }
+    }
+    else if (key == SDLK_BACKSPACE && inputString.empty() == false)
+    {
+        inputString.pop_back();
     }
 
     renderText(textBox, inputString);

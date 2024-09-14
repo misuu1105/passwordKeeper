@@ -24,6 +24,8 @@ class FileHandler
     private:
         tinyxml2::XMLDocument file;
         std::string fileName;
+
+        void createNewFile(tinyxml2::XMLDocument& file, const char* fileName);
 };
 
 template<typename SmartPointerType>
