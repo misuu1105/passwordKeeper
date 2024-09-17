@@ -9,7 +9,7 @@ FileHandler::FileHandler(const std::string& fileName)
         switch (fileStatus)
         {
             case tinyxml2::XML_ERROR_FILE_NOT_FOUND:
-                createNewFile(file, FILE_NAME);
+                createNewFile(FILE_NAME);
                 break;
 
             default:
@@ -30,7 +30,7 @@ void FileHandler::saveToFile(const std::string& appName, const std::string& pass
     }
 
     tinyxml2::XMLElement* newPassword = file.NewElement(appName.c_str());
-    newPassword->SetAttribute("password", appName.c_str());
+    newPassword->SetAttribute("password", password.c_str());
 
     root->InsertEndChild(newPassword);
 
@@ -40,14 +40,14 @@ void FileHandler::saveToFile(const std::string& appName, const std::string& pass
     }
 }
 
-int FileHandler::deleteFromFile(const std::string& appName) noexcept
+int FileHandler::deleteFromFile(const std::string& appName)  noexcept
 {
-    tinyxml2::XMLElement* root = file.RootElement();
-    tinyxml2::XMLElement* searchedApp = root->FirstChildElement(appName.c_str());
+    tinyxml2::XMLNode* root = file.RootElement();
+    tinyxml2::XMLNode* searchedApp = root->FirstChildElement(appName.c_str());
 
     if (searchedApp)
     {
-        root->DeleteChild(searchedApp);
+        file.RootElement()->DeleteChild(searchedApp);
 
         auto fileStatus = file.SaveFile(fileName.c_str());
 
@@ -64,13 +64,13 @@ int FileHandler::deleteFromFile(const std::string& appName) noexcept
     return 0;
 }
 
-void FileHandler::createNewFile(tinyxml2::XMLDocument& file, const char* fileName)
+void FileHandler::createNewFile(const std::string& fileName) 
 {
     file.Clear();   
     tinyxml2::XMLElement* root = file.NewElement("passwords");
     file.InsertFirstChild(root);
 
-    auto fileStaus = file.SaveFile(fileName);
+    auto fileStaus = file.SaveFile(fileName.c_str());
 
     if (fileStaus != tinyxml2::XML_SUCCESS)
     {

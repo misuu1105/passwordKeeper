@@ -7,22 +7,23 @@
 
 #include "FileHandler.h"
 
-const std::string FILE_NAME = "./lib/passwords.xml";
+const std::string FILE_NAME = "./assets/passwords.xml";
 
 class PasswordManager
 {
     public:
         void addPassword(std::string& appName, const std::string& password);
         void deletePassword(std::string& appName);
+        void changePassword(std::string& appName, const std::string& password);
 
         const std::string& getPassword(std::string& appName);
 
     private:
         // The key represents the website or the aplication and the value the password itself
         std::unordered_map<std::string, std::string> passwords;
-        FileHandler handler{FILE_NAME}; 
+        FileHandler fileHandler{FILE_NAME}; 
 
-        void appNameNormalization(std::string& appName);
+        void validateAndNormalizeAppName(std::string& appName);
 };
 
 #endif

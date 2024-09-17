@@ -1,12 +1,12 @@
 #include "UI.h"
 
 // definitions of the extern constants
-const char* BACKGROUND_IMAGE_PATH = "./lib/backgroundImage.bmp";
-const char* FONT_PATH = "./lib/buttonsFont.ttf";
+const char* BACKGROUND_IMAGE_PATH = "./assets/backgroundImage.bmp";
+const char* FONT_PATH = "./assets/buttonsFont.ttf";
 const int TEXT_SIZE = 24;
 const int WIDTH = 1000;
 const int HEIGHT = 550;
-const int BUTTONS_COUNTER = 3;
+const int BUTTONS_COUNTER = 4;
 const int BUTTONS_SPACING = 80;
 const int MAX_STRING_SIZE = 30;
 const SDL_Color BUTTON_COLOR = {255, 255, 255, 255}; 
@@ -144,8 +144,12 @@ void UI::setMainMenuButtonName(std::vector<Button>& buttons, const int currentBu
             buttons[currentButton].name = "ADD A PASSWORD";
             break;
         
-        case VIEW_PASSWORD:
+        case SEARCH_PASSWORD:
             buttons[currentButton].name = "SEARCH PASSWORD";
+            break;
+
+        case CHANGE_PASSWORD:
+            buttons[currentButton].name = "CHANGE A PASSWORD";
             break;
 
         case DELETE_PASSWORD:
@@ -183,8 +187,12 @@ void UI::handleMainMenuButtonAction(int currentButton, std::vector<Button>& butt
             renderAddPasswordMenu(buttons);
             break;
 
-        case VIEW_PASSWORD:
+        case SEARCH_PASSWORD:
             renderSearchPasswordMenu(buttons);
+            break;
+
+        case CHANGE_PASSWORD:
+            renderChangePasswordMenu(buttons);
             break;
 
         case DELETE_PASSWORD:
@@ -249,13 +257,12 @@ void UI::renderAddPasswordMenu(std::vector<Button>& buttons)
         );
     }
 
+    SDL_StopTextInput();
     renderMainMenu(buttons);
 }
 
 void UI::handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton)
-{ 
-    int key;
-
+{
     while (SDL_PollEvent(&event))
     {
         switch (event.type)
@@ -271,10 +278,7 @@ void UI::handleAddPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string
                 break;
 
             case SDL_KEYDOWN:
-
-                key = event.key.keysym.sym;
-    
-                if (key == SDLK_ESCAPE)
+                if (event.key.keysym.sym == SDLK_ESCAPE)
                 {
                     inMenu = false;
                 }
@@ -332,6 +336,8 @@ void UI::handleAddPasswordMenuButtons(int x, const int y, std::string& appNameIn
 
 void UI::renderSearchPasswordMenu(std::vector<Button>& buttons)
 {
+    SDL_StartTextInput();
+
     setBackgroundImage();
     renderButton(BACK_BUTTON);
     renderTextBox(MESSAGE_BOX);
@@ -368,6 +374,7 @@ void UI::renderSearchPasswordMenu(std::vector<Button>& buttons)
         );
     }
 
+    SDL_StopTextInput();
     renderMainMenu(buttons);
 }
 
@@ -386,7 +393,16 @@ void UI::handleSearchPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::str
             case SDL_MOUSEBUTTONDOWN:
                 int x, y;
                 SDL_GetMouseState(&x, &y);
-                handleSearchPasswordMenuButtons(x, y, inMenu, appNameInput, appNameTextBox, getPasswordTextBox, searchButton);
+
+                handleSearchPasswordMenuButtons
+                (   
+                    x, y,
+                    inMenu,
+                    appNameInput,
+                    appNameTextBox,
+                    getPasswordTextBox,
+                    searchButton
+                );
                 break;
 
             case SDL_KEYDOWN:
@@ -433,8 +449,149 @@ void UI::handleSearchPasswordMenuButtons(const int x, const int y, bool& inMenu,
     }
 }
 
+// CHANGE PASSWORD MENU RELATED METHODS
+
+void UI::renderChangePasswordMenu(std::vector<Button> &buttons)
+{ 
+    SDL_StartTextInput();
+
+    setBackgroundImage();
+    renderInfoText();
+    renderButton(BACK_BUTTON);
+    renderTextBox(MESSAGE_BOX);
+    
+    TextBox appNameTextBox = {FIRST_BUTTON_SURFACE, "APP NAME:"};
+    renderTextBox(appNameTextBox);
+
+    TextBox passwordTextBox = {appNameTextBox.surface, "NEW PASSWORD:"};
+    passwordTextBox.surface.y += BUTTONS_SPACING;
+    renderTextBox(passwordTextBox);
+
+    Button clearButton = {BACK_BUTTON_SURFACE, "CLEAR"};
+    clearButton.surface.x = passwordTextBox.surface.x;
+    clearButton.surface.y = passwordTextBox.surface.y + BUTTONS_SPACING;
+    renderButton(clearButton);
+
+    const int sendButtonSpacing = 10;
+
+    Button sendButton = {clearButton.surface, "SEND"};
+    sendButton.surface.x = clearButton.surface.x + clearButton.surface.w + sendButtonSpacing;
+    renderButton(sendButton);
+
+    std::string appNameInput;
+    std::string passwordInput;
+    SDL_Event changePasswordEvent;
+    
+    handleInput(appNameInput, appNameTextBox);
+
+    bool inChangePasswordMenu = true;
+
+    while (inChangePasswordMenu)
+    {
+        handleChangePasswordEvents
+        (
+            changePasswordEvent,
+            inChangePasswordMenu,
+            appNameInput,
+            passwordInput,
+            appNameTextBox,
+            passwordTextBox,
+            clearButton,
+            sendButton
+        );
+    }
+
+    SDL_StopTextInput();
+    renderMainMenu(buttons);    
+}
+
+void UI::handleChangePasswordEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton)
+{
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                quitApplication();
+                return;
+
+            case SDL_MOUSEBUTTONDOWN:
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+
+                handleChangePasswordButtons
+                (
+                    x, y,
+                    inMenu,
+                    appNameInput,
+                    passwordInput,
+                    appNameTextBox,
+                    passwordTextBox,
+                    clearButton,
+                    sendButton
+                );
+                break;
+
+            case SDL_KEYDOWN: 
+                if (event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    inMenu = false;
+                }
+                break;
+            
+            default:
+                break;
+        }
+    }
+}
+
+void UI::handleChangePasswordButtons(const int x, const int y, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox&appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton)
+{
+    if (inButtonSurface(x, y, BACK_BUTTON))
+    {
+        inMenu = false;
+    }
+    else if (inButtonSurface(x, y, appNameTextBox))
+    {
+        handleInput(appNameInput, appNameTextBox);
+    }
+    else if (inButtonSurface(x, y, passwordTextBox))
+    {
+        handleInput(passwordInput, passwordTextBox);
+    }
+    else if (inButtonSurface(x, y, clearButton))
+    {
+        appNameInput.clear();
+        passwordInput.clear();
+
+        renderText(appNameTextBox, appNameInput);
+        renderText(passwordTextBox, passwordInput);
+    }
+    else if (inButtonSurface(x, y, sendButton))
+    {
+        try
+        {
+            passwordManager.changePassword(appNameInput, passwordInput);
+   
+            appNameInput.clear();
+            passwordInput.clear();
+            renderTextBox(appNameTextBox);
+            renderTextBox(passwordTextBox);
+            renderMessageForUser("Password changed successfully", MESSAGE_BOX);
+        }
+        catch (const std::exception& exception)
+        {
+            renderMessageForUser(exception.what(), MESSAGE_BOX);
+        }
+    }
+}
+
+// DELETE PASSWORD MENU RELATED METHODS
+
 void UI::renderDeletePasswordMenu(std::vector<Button>& buttons)
 {
+    SDL_StartTextInput();
+
     setBackgroundImage();
     renderButton(BACK_BUTTON);
     renderTextBox(MESSAGE_BOX);
@@ -470,13 +627,12 @@ void UI::renderDeletePasswordMenu(std::vector<Button>& buttons)
         );
     }
 
+    SDL_StopTextInput();
     renderMainMenu(buttons);
 }
 
 void UI::handleDeletePasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const Button& deleteButton)
 {
-    int key;
-
     while (SDL_PollEvent(&event))
     {
         switch (event.type)
@@ -491,9 +647,7 @@ void UI::handleDeletePasswordMenuEvents(SDL_Event& event, bool& inMenu, std::str
                 handleDeletePasswordMenuButtons(x, y, inMenu, appNameInput, appNameTextBox, deleteButton);
 
             case SDL_KEYDOWN:
-                key = event.key.keysym.sym;
-    
-                if (key == SDLK_ESCAPE)
+                if (event.key.keysym.sym == SDLK_ESCAPE)
                 {
                     inMenu = false;
                 }

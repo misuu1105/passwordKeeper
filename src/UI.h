@@ -9,6 +9,8 @@
 #include <SDL2/SDL_ttf.h>
 #include "PasswordManager.h"
 
+
+
 extern const char* BACKGROUND_IMAGE_PATH;
 extern const char* FONT_PATH;
 extern const int TEXT_SIZE;
@@ -23,7 +25,8 @@ extern const SDL_Rect FIRST_BUTTON_SURFACE;
 enum
 {
     ADD_PASSWORD, // the name of the first button
-    VIEW_PASSWORD, // the name of the second button
+    SEARCH_PASSWORD, // the name of the second button
+    CHANGE_PASSWORD,
     DELETE_PASSWORD, // ...
     LIST_PASSWORDS,
     NO_BUTTON_PRESSED = -1
@@ -74,6 +77,11 @@ class UI
         void renderSearchPasswordMenu(std::vector<Button>& buttons);
         void handleSearchPasswordMenuEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const TextBox& getPasswordTextBox, const Button& searchButton);
         void handleSearchPasswordMenuButtons(const int x, const int y, bool& inMenu, std::string& appNameInput, const TextBox& appNameTextBox, const TextBox& getPasswordTextBox, const Button& searchButton);
+
+        // CHANGE A PASSWORD MENU METHODS
+        void renderChangePasswordMenu(std::vector<Button>& buttons);
+        void handleChangePasswordEvents(SDL_Event& event, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton);
+        void handleChangePasswordButtons(const int x, const int y, bool& inMenu, std::string& appNameInput, std::string& passwordInput, const TextBox& appNameTextBox, const TextBox& passwordTextBox, const Button& clearButton, const Button& sendButton);
 
         // DELETE PASSWORD MENU METHODS
         void renderDeletePasswordMenu(std::vector<Button>& buttons);

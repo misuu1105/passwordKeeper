@@ -2,7 +2,15 @@
 
 void PasswordManager::addPassword(std::string& appName, const std::string& password)
 {
-    appNameNormalization(appName);
+    validateAndNormalizeAppName(appName);
+
+    // checking too see if there is a password saved for the provided app name
+    auto oldPassword = fileHandler.loadFromFile<std::unique_ptr<std::string>>(appName);
+
+    if (oldPassword)
+    {
+        throw std::invalid_argument("There is a saved password for " + appName + ". You can change it in the dedicated menu");
+    }
 
     if (password.empty())
     {
@@ -10,23 +18,29 @@ void PasswordManager::addPassword(std::string& appName, const std::string& passw
     }
 
     passwords[appName] = password; // temporary stored to the map for easy acces
-    handler.saveToFile(appName, password);
+    fileHandler.saveToFile(appName, password);
 }
 
 void PasswordManager::deletePassword(std::string& appName)
 {
-    appNameNormalization(appName);
-    passwords[appName] = this->getPassword(appName); // save the password until the app is closed in case the user deleted it by mistake
+    validateAndNormalizeAppName(appName);
+    passwords[appName] = getPassword(appName); // save the password until the app is closed in case the user deleted it by mistake
 
-    if (handler.deleteFromFile(appName) < 0)
+    if (fileHandler.deleteFromFile(appName) < 0)
     {
         throw std::invalid_argument("There is no password saved for " + appName);
     }
 }
 
+void PasswordManager::changePassword(std::string& appName, const std::string& password)
+{
+    deletePassword(appName);
+    addPassword(appName, password);
+}
+
 const std::string& PasswordManager::getPassword(std::string& appName) 
 {
-    appNameNormalization(appName);
+    validateAndNormalizeAppName(appName);
 
     // std::unorderd_map<>::iterator
     auto password = passwords.find(appName);
@@ -37,7 +51,7 @@ const std::string& PasswordManager::getPassword(std::string& appName)
     }
     else
     {
-        std::unique_ptr<std::string> password = handler.loadFromFile<std::unique_ptr<std::string>>(appName);
+        auto password = fileHandler.loadFromFile<std::unique_ptr<std::string>>(appName);
 
         if (password == nullptr)
         {
@@ -49,14 +63,14 @@ const std::string& PasswordManager::getPassword(std::string& appName)
     } 
 }
 
-void PasswordManager::appNameNormalization(std::string& appName) 
+void PasswordManager::validateAndNormalizeAppName(std::string& appName) 
 {
     if (appName.size() > 30 || appName.empty())
     {
         throw std::out_of_range("App name is invalid");
     }
 
-    for (char currentChar : appName)
+    for (char& currentChar : appName)
     {
         if (isalpha(currentChar) == false)
         {

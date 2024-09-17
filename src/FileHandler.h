@@ -25,7 +25,7 @@ class FileHandler
         tinyxml2::XMLDocument file;
         std::string fileName;
 
-        void createNewFile(tinyxml2::XMLDocument& file, const char* fileName);
+        void createNewFile(const std::string& fileName);
 };
 
 template<typename SmartPointerType>
@@ -38,16 +38,13 @@ SmartPointerType FileHandler::loadFromFile(const std::string& appName) const noe
         "SmartPointerType must be either std::unique_ptr<std::string> or std::shared_ptr<std::string>"
     );
 
-    const char* APP_NAME = appName.c_str();
-    const char* ATTRIBUTE = "password";
-
     const tinyxml2::XMLElement* root = file.RootElement();
-    const tinyxml2::XMLElement* searchedElement = root ? root->FirstChildElement(APP_NAME) : nullptr;
+    const tinyxml2::XMLElement* searchedElement = root ? root->FirstChildElement(appName.c_str()) : nullptr;
 
     // returning the right form of the template
     if (searchedElement)
     {
-        const char* password = searchedElement->Attribute(ATTRIBUTE);
+        const char* password = searchedElement->Attribute("password");
 
         if constexpr (std::is_same_v<SmartPointerType, std::unique_ptr<std::string>>)
         {
